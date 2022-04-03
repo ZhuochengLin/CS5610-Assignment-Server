@@ -5,12 +5,22 @@ exports.default = [
         "_id": "123",
         "postedBy": { "username": "NASA" },
         "tuit": "In 2021, our @NASAPersevere Mars rover landed",
-        "likes": 345
+        "stats": {
+            "retuits": 22,
+            "likes": 345,
+            "dislikes": 55,
+            "replies": 44
+        }
     },
     {
         "_id": "234",
         "postedBy": { "username": "NASA" },
         "tuit": "Ingenuity helicopter takes flight.",
-        "likes": 346785
+        "stats": {
+            "retuits": 22,
+            "likes": 34767,
+            "dislikes": 23,
+            "replies": 44
+        }
     }
 ];

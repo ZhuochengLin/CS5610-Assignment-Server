@@ -9,8 +9,10 @@ const user_controller_1 = __importDefault(require("./controllers/user-controller
 const error_handler_1 = require("./error-handlers/error-handler");
 const log_error_handler_1 = require("./error-handlers/log-error-handler");
 const tuits_controller_1 = __importDefault(require("./controllers/tuits-controller"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+app.use((0, cors_1.default)());
 app.get("/", (req, res) => { res.send("Welcome to Full Stack Development"); });
 const helloController = hello_controller_1.default.getInstance(app);
 const userController = user_controller_1.default.getInstance(app);

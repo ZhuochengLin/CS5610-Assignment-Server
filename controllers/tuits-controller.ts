@@ -29,7 +29,9 @@ export default class TuitsController {
             return;
         }
         newTuit._id = (new Date()).getTime() + "";
-        newTuit.likes = 0;
+        newTuit["stats"]["likes"] = 0;
+        newTuit["stats"]["replies"] = 0;
+        newTuit["stats"]["retuits"] = 0;
         tuits.push(newTuit);
         res.json(newTuit);
     }
