@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const tuits_1 = __importDefault(require("./tuits"));
 const custom_errors_1 = require("../error-handlers/custom-errors");
+const TuitsDao_1 = __importDefault(require("../daos/TuitsDao"));
 let tuits = tuits_1.default;
 class TuitsController {
     constructor() {
@@ -18,31 +19,31 @@ class TuitsController {
                 next(new custom_errors_1.EmptyTuitError());
                 return;
             }
-            newTuit._id = (new Date()).getTime() + "";
-            newTuit["stats"]["likes"] = 0;
-            newTuit["stats"]["replies"] = 0;
-            newTuit["stats"]["retuits"] = 0;
-            tuits.push(newTuit);
-            res.json(newTuit);
+            TuitsController.tuitsDao.createTuit(newTuit)
+                .then(tuit => res.json(tuit))
+                .catch(next);
         };
         this.findAllTuits = (req, res) => {
-            res.json(tuits);
+            TuitsController.tuitsDao.findAllTuits().then(tuits => res.json(tuits));
         };
-        this.updateTuit = (req, res) => {
+        this.updateTuit = (req, res, next) => {
             const tuitId = req.params.tid;
             const updatedTuit = req.body;
-            tuits = tuits.map(t => t._id === tuitId ? Object.assign(Object.assign({}, t), updatedTuit) : t);
-            res.sendStatus(200);
+            TuitsController.tuitsDao.updateTuit(tuitId, updatedTuit)
+                .then(status => res.json(status))
+                .catch(next);
         };
-        this.deleteTuit = (req, res) => {
+        this.deleteTuit = (req, res, next) => {
             const tuitId = req.params.tid;
-            tuits = tuits.filter((t) => t._id != tuitId);
-            res.sendStatus(200);
+            TuitsController.tuitsDao.deleteTuit(tuitId)
+                .then(status => res.json(status))
+                .catch(next);
         };
     }
 }
 exports.default = TuitsController;
 TuitsController.tuitsController = null;
+TuitsController.tuitsDao = TuitsDao_1.default.getInstance();
 TuitsController.getInstance = (app) => {
     if (TuitsController.tuitsController === null) {
         TuitsController.tuitsController = new TuitsController();

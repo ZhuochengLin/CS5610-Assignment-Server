@@ -1,11 +1,13 @@
-import {Express, Request, Response} from "express";
+import {Express, NextFunction, Request, Response} from "express";
 import posts from "./tuits";
 import {EmptyTuitError, EmptyUserError} from "../error-handlers/custom-errors";
+import TuitsDao from "../daos/TuitsDao";
 let tuits = posts;
 
 export default class TuitsController {
 
     private static tuitsController: TuitsController | null = null;
+    private static tuitsDao: TuitsDao = TuitsDao.getInstance();
 
     public static getInstance = (app: Express) => {
         if (TuitsController.tuitsController === null) {
@@ -18,7 +20,7 @@ export default class TuitsController {
         return TuitsController.tuitsController;
     }
 
-    createTuit = (req: Request, res: Response, next: Function) => {
+    createTuit = (req: Request, res: Response, next: NextFunction) => {
         const newTuit = req.body;
         if (!newTuit.postedBy) {
             next(new EmptyUserError());
@@ -28,29 +30,28 @@ export default class TuitsController {
             next(new EmptyTuitError());
             return;
         }
-        newTuit._id = (new Date()).getTime() + "";
-        newTuit["stats"]["likes"] = 0;
-        newTuit["stats"]["replies"] = 0;
-        newTuit["stats"]["retuits"] = 0;
-        tuits.push(newTuit);
-        res.json(newTuit);
+        TuitsController.tuitsDao.createTuit(newTuit)
+            .then(tuit => res.json(tuit))
+            .catch(next);
     }
 
     findAllTuits = (req: Request, res: Response) => {
-        res.json(tuits);
+        TuitsController.tuitsDao.findAllTuits().then(tuits => res.json(tuits));
     }
 
-    updateTuit = (req: Request, res: Response) => {
+    updateTuit = (req: Request, res: Response, next: NextFunction) => {
         const tuitId = req.params.tid;
         const updatedTuit = req.body;
-        tuits = tuits.map(t => t._id === tuitId ? {...t, ...updatedTuit} : t);
-        res.sendStatus(200);
+        TuitsController.tuitsDao.updateTuit(tuitId, updatedTuit)
+            .then(status => res.json(status))
+            .catch(next);
     }
 
-    deleteTuit = (req: Request, res: Response) => {
+    deleteTuit = (req: Request, res: Response, next: NextFunction) => {
         const tuitId = req.params.tid;
-        tuits = tuits.filter((t) => t._id != tuitId);
-        res.sendStatus(200);
+        TuitsController.tuitsDao.deleteTuit(tuitId)
+            .then(status => res.json(status))
+            .catch(next)
     }
 
 }
